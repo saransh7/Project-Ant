@@ -89,19 +89,23 @@ public class ContactFragment extends Fragment
       public String mBoundString;
 
       public final View mView;
-      public final ImageView mImageView;
-      public final TextView mTextView;
+      public final ImageView avatar;
+      public final TextView mName;
+      public final TextView mNumber;
+      public final TextView mEmail;
 
       public ViewHolder(View view) {
         super(view);
         mView = view;
-        mImageView = (ImageView) view.findViewById(R.id.avatar);
-        mTextView = (TextView) view.findViewById(android.R.id.text1);
+        avatar = (ImageView) view.findViewById(R.id.avatar);
+        mNumber = (TextView) view.findViewById(R.id.contact_num);
+        mEmail = (TextView) view.findViewById(R.id.email);
+        mName = (TextView) view.findViewById(android.R.id.text1);
       }
 
       @Override
       public String toString() {
-        return super.toString() + " '" + mTextView.getText();
+        return super.toString() + " '" + mName.getText();
       }
     }
 
@@ -123,9 +127,10 @@ public class ContactFragment extends Fragment
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
       holder.mBoundString = mValues.get(position).getName();
-      String text = "<font>" + mValues.get(position).getName() + "</font> <br> <font> <small>" + mValues.get(position).getPost() + "</small> </font>";
-      holder.mTextView.setText(Html.fromHtml(text));
-
+      String text = "<font>" + mValues.get(position).getName();
+      holder.mName.setText(Html.fromHtml(text));
+      holder.mNumber.setText(mValues.get(position).getNumber());
+      holder.mEmail.setText(mValues.get(position).getPost());
       holder.mView.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -166,10 +171,10 @@ public class ContactFragment extends Fragment
       if (resID == 0){
         resID = resource.getIdentifier("generic", "drawable", getActivity().getPackageName());;
       }
-      Glide.with(holder.mImageView.getContext())
+      Glide.with(holder.avatar.getContext())
         .load(resID)
         .fitCenter()
-        .into(holder.mImageView);
+        .into(holder.avatar);
     }
 
     @Override

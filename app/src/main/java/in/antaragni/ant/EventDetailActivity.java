@@ -1,7 +1,9 @@
 package in.antaragni.ant;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -40,6 +42,7 @@ public class EventDetailActivity extends AppCompatActivity
   public static final String EXTRA_NAME = "Event_name";
   public Event mEvent;
   private long mGoogleCalendarNumber = -1;
+  Context context;
   private DatabaseAccess databaseAccess;
   // The indices for the projection array above.
   private static final int PROJECTION_ID_INDEX = 0;
@@ -61,7 +64,7 @@ public class EventDetailActivity extends AppCompatActivity
     final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+    context=this;
     //get calendar status
     // Run query
     Cursor cur = null;
@@ -138,7 +141,6 @@ public class EventDetailActivity extends AppCompatActivity
     TextView descriptionText = (TextView) findViewById(R.id.descriptiontext);
     TextView resultText = (TextView) findViewById(R.id.resulttext);
     categoryText.setText(mEvent.getCategory());
-
     int shour = mEvent.getStart_time().get(Calendar.HOUR_OF_DAY);
     int min =  mEvent.getStart_time().get(Calendar.MINUTE);
     String smin;
@@ -178,6 +180,37 @@ public class EventDetailActivity extends AppCompatActivity
     timeText.setText(time);
     venueText.setText(mEvent.getVenue().getLocation());
     contactText.setText(mEvent.getContact().getName());
+    contactText.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+            new BottomSheet.Builder((Activity) context).title("Options").sheet(R.menu.contact_detail_menu).listener(new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                  case R.id.call:
+                    Intent intent = new Intent(Intent.ACTION_CALL);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                      intent.setPackage("com.android.server.telecom");
+                    } else {
+                      intent.setPackage("com.android.phone");
+                    }
+                    intent.setData(Uri.parse("tel:" + mEvent.getContact().getNumber()));
+                    (context).startActivity(intent);
+                    break;
+                  case R.id.save:
+                    Intent intent1 = new Intent(Intent.ACTION_INSERT);
+                    intent1.setType(ContactsContract.Contacts.CONTENT_TYPE);
+                    intent1.putExtra(ContactsContract.Intents.Insert.NAME, mEvent.getContact().getName());
+                    intent1.putExtra(ContactsContract.Intents.Insert.PHONE, mEvent.getContact().getNumber());
+                    if (intent1.resolveActivity(context.getPackageManager()) != null) {
+                      startActivity(intent1);
+                    }
+                    break;
+                }
+              }
+            }).show();
+          }
+    });
     if(description!=null && description.length()>10)
     {
       descriptionText.setText(description);
