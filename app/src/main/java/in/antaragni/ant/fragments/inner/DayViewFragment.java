@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import in.antaragni.ant.EventDetailActivity;
-import in.antaragni.ant.MainActivity;
+import in.antaragni.ant.Activity.EventDetailActivity;
+import in.antaragni.ant.Activity.MainActivity;
 import in.antaragni.ant.R;
 import in.antaragni.ant.datahandler.DatabaseAccess;
 import in.antaragni.ant.datamodels.Event;

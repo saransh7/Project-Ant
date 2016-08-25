@@ -1,4 +1,4 @@
-package in.antaragni.ant;
+package in.antaragni.ant.Activity;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -19,7 +19,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mikepenz.iconics.typeface.FontAwesome;
@@ -34,6 +33,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.mikepenz.materialdrawer.util.KeyboardUtil;
 
+import in.antaragni.ant.R;
 import in.antaragni.ant.fragments.AboutFragment;
 import in.antaragni.ant.fragments.ContactFragment;
 import in.antaragni.ant.fragments.EventFragment;

@@ -67,10 +67,10 @@ public class DatabaseAccess
     }
   }
 
-  public List<Contact> getContacts(String category)
+  public List<Contact> getContacts(String name)
   { ArrayList<Contact> contactList=new ArrayList<>();
-    String query = "SELECT * FROM contacts;";
-    Cursor cursor = database.rawQuery(query, null);
+    String query = "SELECT * FROM contacts WHERE category=?;";
+    Cursor cursor = database.rawQuery(query,new String[]{name});
     cursor.moveToFirst();
     while (!cursor.isAfterLast())
     {

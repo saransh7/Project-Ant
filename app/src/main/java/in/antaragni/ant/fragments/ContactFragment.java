@@ -40,7 +40,7 @@ import in.antaragni.ant.datamodels.Contact;
 public class ContactFragment extends Fragment
 {
   private static final String KEY_TITLE = "title";
-  private static final String SUB_CATEGORY = "sub";
+  private static String NAME = "name";
   private DatabaseAccess databaseAccess;
 
   public ContactFragment()
@@ -52,7 +52,7 @@ public class ContactFragment extends Fragment
     ContactFragment f = new ContactFragment();
     Bundle args = new Bundle();
     args.putString(KEY_TITLE, title);
-    args.putString(SUB_CATEGORY,cat);
+    args.putString(NAME,cat);
     f.setArguments(args);
     return (f);
   }
@@ -70,8 +70,8 @@ public class ContactFragment extends Fragment
     databaseAccess = DatabaseAccess.getInstance(getActivity());
     List<Contact> contactList;
     databaseAccess.open();
-    String c;
-    if((c= getArguments().getString(SUB_CATEGORY))!=null) {
+    String c= getArguments().getString(NAME);
+    if((c)!=null) {
       contactList = databaseAccess.getContacts(c);
     }
     else

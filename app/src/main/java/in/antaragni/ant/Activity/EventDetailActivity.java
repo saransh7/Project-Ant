@@ -1,12 +1,10 @@
-package in.antaragni.ant;
+package in.antaragni.ant.Activity;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -18,7 +16,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,15 +26,14 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cocosw.bottomsheet.BottomSheet;
-import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
 import java.util.Calendar;
 
+import in.antaragni.ant.R;
 import in.antaragni.ant.datahandler.DatabaseAccess;
 import in.antaragni.ant.datamodels.Contact;
 import in.antaragni.ant.datamodels.Event;
 import in.antaragni.ant.datamodels.Venue;
-import in.antaragni.ant.fragments.ContactFragment;
 
 public class EventDetailActivity extends AppCompatActivity
 {
@@ -186,8 +182,7 @@ public class EventDetailActivity extends AppCompatActivity
     contactText.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        ContactFragment f = ContactFragment.newInstance(mEvent.getName(),mEvent.getCategory());
-        getSupportFragmentManager().beginTransaction().add(R.id.contacts, f).commit();
+        startContacts();
           }
     });
     if(description!=null && description.length()>10)
@@ -272,6 +267,12 @@ public class EventDetailActivity extends AppCompatActivity
     values.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
     uri = cr.insert(CalendarContract.Reminders.CONTENT_URI, values);
     Toast.makeText(this, "Reminder set for " + min + " minutes before event", Toast.LENGTH_SHORT).show();
+  }
+
+  private void startContacts(){
+    Intent intent=new Intent(EventDetailActivity.this,ContactActivity.class);
+    intent.putExtra("post",mEvent.getContact().getCategory());
+    this.startActivity(intent);
   }
 
   @Override
