@@ -159,7 +159,7 @@ MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFa
             } else if (drawerItem.getIdentifier() == CONTACT)
             {
               getSupportActionBar().setTitle(((Nameable) drawerItem).getNameRes());
-              f = ContactFragment.newInstance(getResources().getString(((Nameable) drawerItem).getNameRes()));
+              f = ContactFragment.newInstance(getResources().getString(((Nameable) drawerItem).getNameRes()),null);
               getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, f).commit();
             } else if (drawerItem.getIdentifier() == ABOUT)
             {

@@ -40,6 +40,7 @@ import in.antaragni.ant.datamodels.Contact;
 public class ContactFragment extends Fragment
 {
   private static final String KEY_TITLE = "title";
+  private static final String SUB_CATEGORY = "sub";
   private DatabaseAccess databaseAccess;
 
   public ContactFragment()
@@ -47,10 +48,11 @@ public class ContactFragment extends Fragment
     // Required empty public constructor
   }
 
-  public static ContactFragment newInstance(String title) {
+  public static ContactFragment newInstance(String title, String cat) {
     ContactFragment f = new ContactFragment();
     Bundle args = new Bundle();
     args.putString(KEY_TITLE, title);
+    args.putString(SUB_CATEGORY,cat);
     f.setArguments(args);
     return (f);
   }
@@ -66,8 +68,14 @@ public class ContactFragment extends Fragment
 
   private void setupRecyclerView(RecyclerView recyclerView) {
     databaseAccess = DatabaseAccess.getInstance(getActivity());
+    List<Contact> contactList;
     databaseAccess.open();
-    List<Contact> contactList = databaseAccess.getContact();
+    String c;
+    if((c= getArguments().getString(SUB_CATEGORY))!=null) {
+      contactList = databaseAccess.getContacts(c);
+    }
+    else
+    contactList=databaseAccess.getContact();
     databaseAccess.close();
     List<String> nameList = new ArrayList<>();
     for (int i=0;i<contactList.size();i++) {

@@ -18,6 +18,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cocosw.bottomsheet.BottomSheet;
+import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
 import java.util.Calendar;
 
@@ -35,6 +37,7 @@ import in.antaragni.ant.datahandler.DatabaseAccess;
 import in.antaragni.ant.datamodels.Contact;
 import in.antaragni.ant.datamodels.Event;
 import in.antaragni.ant.datamodels.Venue;
+import in.antaragni.ant.fragments.ContactFragment;
 
 public class EventDetailActivity extends AppCompatActivity
 {
@@ -183,32 +186,8 @@ public class EventDetailActivity extends AppCompatActivity
     contactText.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-            new BottomSheet.Builder((Activity) context).title("Options").sheet(R.menu.contact_detail_menu).listener(new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                  case R.id.call:
-                    Intent intent = new Intent(Intent.ACTION_CALL);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                      intent.setPackage("com.android.server.telecom");
-                    } else {
-                      intent.setPackage("com.android.phone");
-                    }
-                    intent.setData(Uri.parse("tel:" + mEvent.getContact().getNumber()));
-                    (context).startActivity(intent);
-                    break;
-                  case R.id.save:
-                    Intent intent1 = new Intent(Intent.ACTION_INSERT);
-                    intent1.setType(ContactsContract.Contacts.CONTENT_TYPE);
-                    intent1.putExtra(ContactsContract.Intents.Insert.NAME, mEvent.getContact().getName());
-                    intent1.putExtra(ContactsContract.Intents.Insert.PHONE, mEvent.getContact().getNumber());
-                    if (intent1.resolveActivity(context.getPackageManager()) != null) {
-                      startActivity(intent1);
-                    }
-                    break;
-                }
-              }
-            }).show();
+        ContactFragment f = ContactFragment.newInstance(mEvent.getName(),mEvent.getCategory());
+        getSupportFragmentManager().beginTransaction().add(R.id.contacts, f).commit();
           }
     });
     if(description!=null && description.length()>10)

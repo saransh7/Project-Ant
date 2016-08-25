@@ -67,6 +67,21 @@ public class DatabaseAccess
     }
   }
 
+  public List<Contact> getContacts(String category)
+  { ArrayList<Contact> contactList=new ArrayList<>();
+    String query = "SELECT * FROM contacts;";
+    Cursor cursor = database.rawQuery(query, null);
+    cursor.moveToFirst();
+    while (!cursor.isAfterLast())
+    {
+      Contact contact = new Contact(cursor.getString(1), cursor.getString(2), cursor.getString(4), cursor.getString(3));
+      contactList.add(contact);
+      cursor.moveToNext();
+    }
+    cursor.close();
+    return contactList;
+  }
+
   public List<Event> getEventbyDay(int day)
   {
     String query = "SELECT * FROM eventdetails WHERE day=" + String.valueOf(day) + " ORDER BY start_time;";
