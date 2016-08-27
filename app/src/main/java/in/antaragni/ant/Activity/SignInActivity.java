@@ -1,4 +1,4 @@
-package in.antaragni.ant;
+package in.antaragni.ant.Activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -28,6 +28,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.OptionalPendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+
+import in.antaragni.ant.R;
 
 /**
  * Activity to demonstrate basic retrieval of the Google user's ID, email address, and basic
@@ -63,8 +65,8 @@ public class SignInActivity extends AppCompatActivity implements
                     @Override
                     public void onSuccess(LoginResult loginResult) {
                         Intent t = new Intent(SignInActivity.this, MainActivity.class);
-                        startActivity(t);t
-                    }r
+                        startActivity(t);
+                    }
 
                     @Override
                     public void onCancel() {
@@ -111,7 +113,7 @@ public class SignInActivity extends AppCompatActivity implements
         // may be displayed when only basic profile is requested. Try adding the
         // Scopes.PLUS_LOGIN scope to the GoogleSignInOptions to see the
         // difference.
-        SignInButton bg = (SignInButton) findViewById(R.id.sign_in_button);
+        SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         signInButton.setScopes(gso.getScopeArray());
         // [END customize_button]

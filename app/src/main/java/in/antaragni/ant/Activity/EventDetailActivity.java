@@ -1,10 +1,10 @@
-package in.antaragni.ant;
+package in.antaragni.ant.Activity;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -29,6 +29,7 @@ import com.cocosw.bottomsheet.BottomSheet;
 
 import java.util.Calendar;
 
+import in.antaragni.ant.R;
 import in.antaragni.ant.datahandler.DatabaseAccess;
 import in.antaragni.ant.datamodels.Contact;
 import in.antaragni.ant.datamodels.Event;
@@ -40,6 +41,7 @@ public class EventDetailActivity extends AppCompatActivity
   public static final String EXTRA_NAME = "Event_name";
   public Event mEvent;
   private long mGoogleCalendarNumber = -1;
+  Context context;
   private DatabaseAccess databaseAccess;
   // The indices for the projection array above.
   private static final int PROJECTION_ID_INDEX = 0;
@@ -61,7 +63,7 @@ public class EventDetailActivity extends AppCompatActivity
     final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+    context=this;
     //get calendar status
     // Run query
     Cursor cur = null;
@@ -138,7 +140,6 @@ public class EventDetailActivity extends AppCompatActivity
     TextView descriptionText = (TextView) findViewById(R.id.descriptiontext);
     TextView resultText = (TextView) findViewById(R.id.resulttext);
     categoryText.setText(mEvent.getCategory());
-
     int shour = mEvent.getStart_time().get(Calendar.HOUR_OF_DAY);
     int min =  mEvent.getStart_time().get(Calendar.MINUTE);
     String smin;
@@ -178,6 +179,12 @@ public class EventDetailActivity extends AppCompatActivity
     timeText.setText(time);
     venueText.setText(mEvent.getVenue().getLocation());
     contactText.setText(mEvent.getContact().getName());
+    contactText.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startContacts();
+          }
+    });
     if(description!=null && description.length()>10)
     {
       descriptionText.setText(description);
@@ -260,6 +267,12 @@ public class EventDetailActivity extends AppCompatActivity
     values.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
     uri = cr.insert(CalendarContract.Reminders.CONTENT_URI, values);
     Toast.makeText(this, "Reminder set for " + min + " minutes before event", Toast.LENGTH_SHORT).show();
+  }
+
+  private void startContacts(){
+    Intent intent=new Intent(EventDetailActivity.this,ContactActivity.class);
+    intent.putExtra("post",mEvent.getContact().getCategory());
+    this.startActivity(intent);
   }
 
   @Override

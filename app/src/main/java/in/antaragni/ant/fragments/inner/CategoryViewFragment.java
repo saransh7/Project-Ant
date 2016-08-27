@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,8 +25,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import in.antaragni.ant.EventDetailActivity;
-import in.antaragni.ant.MainActivity;
+import in.antaragni.ant.Activity.EventDetailActivity;
+import in.antaragni.ant.Activity.MainActivity;
 import in.antaragni.ant.R;
 import in.antaragni.ant.datahandler.DatabaseAccess;
 import in.antaragni.ant.datamodels.Event;
