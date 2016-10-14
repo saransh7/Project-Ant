@@ -5,11 +5,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,6 +45,8 @@ public class CategoryViewFragment extends Fragment
   private String mCategory;
   private DatabaseAccess databaseAccess;
   private long mGoogleCalendarNumber = -1;
+  private int PERMISSION_CALENDER;
+  private static final int MY_PERMISSIONS_REQUEST_READ_CALENDER =1;
 
   // The indices for the projection array above.
   private static final int PROJECTION_ID_INDEX = 0;
@@ -61,8 +66,7 @@ public class CategoryViewFragment extends Fragment
 
   // Store instance variables based on arguments passed
   @Override
-  public void onCreate(Bundle savedInstanceState)
-  {
+  public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mCategory = getArguments().getString("Category", "Dance");
     // Run query
@@ -72,25 +76,61 @@ public class CategoryViewFragment extends Fragment
     String selection = "(" + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?)";
     String[] selectionArgs = new String[]{"com.google"};
     // Submit the query and get a Cursor object back.
-    cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
-    while (cur.moveToNext())
-    {
-      long calID = 0;
-      String displayName = null;
-      String accountName = null;
-      String ownerName = null;
+    checkpermission(MY_PERMISSIONS_REQUEST_READ_CALENDER);
+    if (PERMISSION_CALENDER == MY_PERMISSIONS_REQUEST_READ_CALENDER) {
+      cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
 
-      // Get the field values
-      calID = cur.getLong(PROJECTION_ID_INDEX);
-      displayName = cur.getString(PROJECTION_DISPLAY_NAME_INDEX);
-      accountName = cur.getString(PROJECTION_ACCOUNT_NAME_INDEX);
-      ownerName = cur.getString(PROJECTION_OWNER_ACCOUNT_INDEX);
-      if (mGoogleCalendarNumber == -1)
-      {
-        mGoogleCalendarNumber = calID;
+      while (cur.moveToNext()) {
+        long calID = 0;
+        String displayName = null;
+        String accountName = null;
+        String ownerName = null;
+
+        // Get the field values
+        calID = cur.getLong(PROJECTION_ID_INDEX);
+        displayName = cur.getString(PROJECTION_DISPLAY_NAME_INDEX);
+        accountName = cur.getString(PROJECTION_ACCOUNT_NAME_INDEX);
+        ownerName = cur.getString(PROJECTION_OWNER_ACCOUNT_INDEX);
+        if (mGoogleCalendarNumber == -1) {
+          mGoogleCalendarNumber = calID;
+        }
+      }
+      cur.close();
+    }
+  }
+  public void checkpermission(int PERMISSION) {
+    if (PERMISSION == MY_PERMISSIONS_REQUEST_READ_CALENDER) {
+      if (ContextCompat.checkSelfPermission(getContext(),
+              android.Manifest.permission.READ_CALENDAR)
+              != PackageManager.PERMISSION_GRANTED) {
+
+        ActivityCompat.requestPermissions(getActivity(),
+                new String[]{android.Manifest.permission.READ_CALENDAR},
+                MY_PERMISSIONS_REQUEST_READ_CALENDER);
+
       }
     }
-    cur.close();
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+                                         String permissions[], int[] grantResults) {
+    switch (requestCode) {
+      case MY_PERMISSIONS_REQUEST_READ_CALENDER: {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          PERMISSION_CALENDER = 1;
+          return;
+
+        } else {
+
+          checkpermission(MY_PERMISSIONS_REQUEST_READ_CALENDER);
+
+        }
+        return;
+      }
+    }
   }
 
 

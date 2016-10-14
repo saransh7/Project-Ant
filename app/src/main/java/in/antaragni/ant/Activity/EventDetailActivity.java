@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -14,6 +15,8 @@ import android.provider.ContactsContract;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -29,6 +32,7 @@ import com.cocosw.bottomsheet.BottomSheet;
 
 import java.util.Calendar;
 
+import in.antaragni.ant.Manifest;
 import in.antaragni.ant.R;
 import in.antaragni.ant.datahandler.DatabaseAccess;
 import in.antaragni.ant.datamodels.Contact;
@@ -40,15 +44,19 @@ public class EventDetailActivity extends AppCompatActivity
 
   public static final String EXTRA_NAME = "Event_name";
   public Event mEvent;
+  private int PERMISSION_CALENDER;
+  private int PERMISSION_CONTACTS;
   private long mGoogleCalendarNumber = -1;
   Context context;
   private DatabaseAccess databaseAccess;
+  private static final int MY_PERMISSIONS_REQUEST_READ_CALENDER =1;
+  private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS =2;
+
   // The indices for the projection array above.
   private static final int PROJECTION_ID_INDEX = 0;
   private static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
   private static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
   private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
-
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
@@ -72,29 +80,30 @@ public class EventDetailActivity extends AppCompatActivity
     String selection = "(" + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?)";
     String[] selectionArgs = new String[]{"com.google"};
     // Submit the query and get a Cursor object back.
-    cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
-    while (cur.moveToNext())
-    {
-      long calID = 0;
-      String displayName = null;
-      String accountName = null;
-      String ownerName = null;
+    checkpermission(MY_PERMISSIONS_REQUEST_READ_CALENDER);
+    if(PERMISSION_CALENDER==MY_PERMISSIONS_REQUEST_READ_CALENDER) {
+      cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
+      while (cur.moveToNext()) {
+        long calID = 0;
+        String displayName = null;
+        String accountName = null;
+        String ownerName = null;
 
-      // Get the field values
-      calID = cur.getLong(PROJECTION_ID_INDEX);
-      displayName = cur.getString(PROJECTION_DISPLAY_NAME_INDEX);
-      accountName = cur.getString(PROJECTION_ACCOUNT_NAME_INDEX);
-      ownerName = cur.getString(PROJECTION_OWNER_ACCOUNT_INDEX);
-      if (mGoogleCalendarNumber == -1)
-      {
-        mGoogleCalendarNumber = calID;
+        // Get the field values
+        calID = cur.getLong(PROJECTION_ID_INDEX);
+        displayName = cur.getString(PROJECTION_DISPLAY_NAME_INDEX);
+        accountName = cur.getString(PROJECTION_ACCOUNT_NAME_INDEX);
+        ownerName = cur.getString(PROJECTION_OWNER_ACCOUNT_INDEX);
+        if (mGoogleCalendarNumber == -1) {
+          mGoogleCalendarNumber = calID;
+        }
       }
+      cur.close();
     }
-    cur.close();
 
     //setup collapsing toolbar
     CollapsingToolbarLayout collapsingToolbar =
-      (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+            (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
     collapsingToolbar.setTitle(EventName);
     FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
     fab.setOnClickListener(new View.OnClickListener()
@@ -112,12 +121,12 @@ public class EventDetailActivity extends AppCompatActivity
           Calendar endTime = Calendar.getInstance();
           endTime.set(2015, mEvent.getEnd_time().get(Calendar.MONTH), mEvent.getEnd_time().get(Calendar.DATE), mEvent.getEnd_time().get(Calendar.HOUR), mEvent.getEnd_time().get(Calendar.MINUTE));
           Intent intent = new Intent(Intent.ACTION_INSERT)
-            .setData(CalendarContract.Events.CONTENT_URI)
-            .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis())
-            .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis())
-            .putExtra(CalendarContract.Events.TITLE, mEvent.getName())
-            .putExtra(CalendarContract.Events.ALLOWED_REMINDERS, 1)
-            .putExtra(CalendarContract.Events.DESCRIPTION, mEvent.getDescription());
+                  .setData(CalendarContract.Events.CONTENT_URI)
+                  .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis())
+                  .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis())
+                  .putExtra(CalendarContract.Events.TITLE, mEvent.getName())
+                  .putExtra(CalendarContract.Events.ALLOWED_REMINDERS, 1)
+                  .putExtra(CalendarContract.Events.DESCRIPTION, mEvent.getDescription());
           startActivity(intent);
         }
       }
@@ -183,7 +192,7 @@ public class EventDetailActivity extends AppCompatActivity
       @Override
       public void onClick(View v) {
         startContacts();
-          }
+      }
     });
     if(description!=null && description.length()>10)
     {
@@ -209,10 +218,10 @@ public class EventDetailActivity extends AppCompatActivity
   // Projection array. Creating indices for this array instead of doing
   // dynamic lookups improves performance.
   public static final String[] EVENT_PROJECTION = new String[]{
-    CalendarContract.Calendars._ID,                           // 0
-    CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
-    CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
-    CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
+          CalendarContract.Calendars._ID,                           // 0
+          CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
+          CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
+          CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
   };
 
   public void showReminderSheet()
@@ -296,7 +305,14 @@ public class EventDetailActivity extends AppCompatActivity
                   intent.setPackage("com.android.phone");
                 }
                 intent.setData(Uri.parse("tel:" + mEvent.getContact().getNumber()));
-                startActivity(intent);
+                checkpermission(MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                if(PERMISSION_CONTACTS==1) {
+
+                  startActivity(intent);
+
+                }
+
                 break;
               case R.id.save:
                 Intent intent1 = new Intent(Intent.ACTION_INSERT);
@@ -318,6 +334,66 @@ public class EventDetailActivity extends AppCompatActivity
         break;
     }
     return super.onOptionsItemSelected(item);
+  }
+
+  public void checkpermission(int PERMISSION){
+    if(PERMISSION == MY_PERMISSIONS_REQUEST_READ_CALENDER ) {
+      if (ContextCompat.checkSelfPermission(this,
+              android.Manifest.permission.READ_CALENDAR)
+              != PackageManager.PERMISSION_GRANTED) {
+
+        ActivityCompat.requestPermissions(this,
+                new String[]{android.Manifest.permission.READ_CALENDAR},
+                MY_PERMISSIONS_REQUEST_READ_CALENDER);
+
+      }
+    }
+    else if(PERMISSION == MY_PERMISSIONS_REQUEST_READ_CONTACTS) {
+      if (ContextCompat.checkSelfPermission(this,
+              android.Manifest.permission.READ_CONTACTS)
+              != PackageManager.PERMISSION_GRANTED) {
+
+        ActivityCompat.requestPermissions(this,
+                new String[]{android.Manifest.permission.READ_CONTACTS},
+                MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+      }
+    }
+  }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode,
+                                         String permissions[], int[] grantResults) {
+    switch (requestCode) {
+      case MY_PERMISSIONS_REQUEST_READ_CALENDER: {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          PERMISSION_CALENDER=1;
+
+        } else {
+
+          checkpermission(MY_PERMISSIONS_REQUEST_READ_CALENDER);
+
+        }
+        return;
+      }
+
+      case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+          PERMISSION_CONTACTS=1;
+
+        } else {
+
+          checkpermission(MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+        }
+        return;
+      }
+    }
+
   }
 
   private void loadBackdrop()
@@ -361,7 +437,7 @@ public class EventDetailActivity extends AppCompatActivity
       case "Professional show":
         return R.drawable.semipro;
       default:
-      return R.drawable.antlogo;
+        return R.drawable.antlogo;
     }
   }
 
